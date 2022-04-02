@@ -239,6 +239,7 @@ public final class MountTable implements DelegatingJournaled {
         String mount = entry.getKey();
         // we choose a new candidate path if the previous candidatepath is a prefix
         // of the current alluxioPath and the alluxioPath is a prefix of the path
+        // TODO (Jiadong) can we change hasPrefix(mount, lastMount) to length comparison?
         if (!mount.equals(ROOT) && PathUtils.hasPrefix(path, mount)
             && PathUtils.hasPrefix(mount, lastMount)) {
           lastMount = mount;
