@@ -56,6 +56,66 @@ import alluxio.resource.LockResource;
  *      /a/b/c/5  --->  /a/b/c
  *      /a/2      --->  /a
  *    </p>
+ *
+ *   pseudocode
+ *
+ *   nested_paths: map from `nested_path` to the number of mount point under this path;
+ *   non_nested_paths: tree map from `path` to its mount point
+ *   exact_mount_points: map from `path` to its mount point
+ *
+ *   // add a path, when mount
+ *   // add nested
+ *   func addNested(path, upper_path):
+ *    if non_nested_paths.have(upper_path):
+ *      non_nested_paths.remove(upper_path)
+ *      nested_paths.add(upper_path, 0)
+ *    nested_paths[upper_path]++
+ *
+ *    for key in non_nested_paths.keys():
+ *      if key.hasPrefix(upper_path):
+ *        non_nested_paths.remove(key)
+ *    non_nested_paths.add(path, upper_path)
+ *
+ *   // add non nested path
+ *   func addNonNested(path):
+ *     non_nested_paths.add(path, path)
+ *
+ *  // add a kv pair
+ *  func add(mountPoint, path):
+ *    if nested_paths.have(path):
+ *      exact_mount_points.add(path, mountPath)
+ *    if non_nested_paths.have(path):
+ *      for midPath in (mountPoint, path]:
+ *        // cache mid path
+ *        non_nested_paths.add(midPath, mountPoint)
+ *
+ *  // get path's mount point
+ *  func get(path):
+ *    for layerIndex in layerNumber:
+ *      currentLayerParent <- getLayerParent(layerIndex, path)
+ *      if non_nested_path.have(currentLayerParent):
+ *        return non_nested_path.find(currentLayerParent)
+ *    // missing
+ *    return null
+ *
+ *   func delete(path):
+ *    if nested_paths.have(path):
+ *      nested_paths.remove(path)
+ *      clean_entry_from_exact_mount_points(path)
+ *    else:
+ *      for p in non_nested_paths.values():
+ *        if p.equals(path):
+ *          non_nested_paths.remove(p)
+ *      for p in nested_paths:
+ *        if path.hasPrefix(p):
+ *          nested_paths[p]--
+ *        if nested_paths[p] == 0:
+ *          remove_from_nested_paths(p)
+ *
+ *
+ *
+ *
+ *
  */
 @ThreadSafe
 public class MountPointCache {
