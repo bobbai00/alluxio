@@ -79,7 +79,7 @@ public final class GrpcServerBuilder {
   }
 
   /**
-   * Create an new instance of {@link GrpcServerBuilder} with authentication support.
+   * Create an new instance of {@link GrpcServerBuilder} without authentication support.
    *
    * @param serverAddress server address
    * @param conf Alluxio configuration
